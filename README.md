@@ -80,12 +80,12 @@
 - You can stream youtube videos, radios, youtube/spotify playlists or telegram audio files!
 - No duration limit!
 - Unlimited queue!
-- Play different songs in multiple groups. Each group has it's own queue
+- Play different songs in multiple groups. Each group has it's own queue!
 
 ## Run
-> **Requires:**
-> Python3.7+
-> Node.js15+
+> **Requires:**  
+> Python3.7+  
+> Node.js15+  
 > FFmpeg
 
 ```bash
