@@ -393,12 +393,12 @@ async def import_playlist(_, message: Message):
 
     if 'open.spotify.com/playlist/' in text:
         try:
-            temp_queue = await get_spotify_playlist(text, message)
+            temp_queue = get_spotify_playlist(text, message)
         except:
             return await message.reply_text(lang['notFound'])
     elif 'youtube.com/playlist?list=' in text:
         try:
-            temp_queue = await get_youtube_playlist(text, message)
+            temp_queue = get_youtube_playlist(text, message)
         except:
             return await message.reply_text(lang['notFound'])
         
@@ -472,11 +472,11 @@ async def stream_end(_, update: Update):
                     next_song.headers
                 )
             )
-            await set_title(infomsg, next_song.title)
+            await set_title(chat_id, next_song.title, client=app)
             if not group['quiet']:
                 await infomsg.edit_text(lang['playing'] % (next_song.thumb, next_song.title, next_song.yt_url, next_song.duration, next_song.requested_by.mention))
         else:
-            await set_title(group['now_playing'].request_msg, '')
+            await set_title(chat_id, '', client=app)
             set_group(chat_id, is_playing=False, now_playing=None)
             await tgcalls.leave_group_call(
                 chat_id
