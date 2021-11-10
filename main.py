@@ -19,7 +19,7 @@ from core import (search, command, extract_args,
     get_group, set_group, set_title,
     get_queue, clear_queue, shuffle_queue,
     add_bl, rem_bl, get_bl)
-from core.decorators import register, handle_error, blacklist_check, only_admins
+from core.decorators import register, handle_error, blacklist_check, only_admins, language
 from core.song import Song
 from lang import load
 from config import config
@@ -28,25 +28,27 @@ app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH, par
 tgcalls = PyTgCalls(app)
 
 logging.basicConfig(level=config.LOG_LEVEL)
-lang = load('tr')
 
 """start"""
 @app.on_message(command(['start', 'help']))
+@register
+@language
 @handle_error
-async def start(_, message: Message):
+async def start(_, message: Message, lang):
     await app.send_message(message.chat.id, lang['start'].replace('<prefix>', config.PREFIXES[0]))
 
 """ping"""
 @app.on_message(command('ping'))
 async def ping(_, message: Message):
-    await message.reply_text(f'`{await tgcalls.ping}s`')
+    await message.reply_text(f'`{await tgcalls.ping}ms`')
 
 """play"""
 @app.on_message(command(['play', 'p']) & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def play(_, message: Message):
+async def play(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     song = search(message)
@@ -79,9 +81,10 @@ async def play(_, message: Message):
 """radio"""
 @app.on_message(command('radio') & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def live(_, message: Message):
+async def live(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     link = extract_args(message.text)
@@ -115,9 +118,10 @@ async def live(_, message: Message):
 """skip"""
 @app.on_message(command(['skip', 'next', 's', 'n']) & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def skip(_, message: Message):
+async def skip(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     if group['loop']:
@@ -166,9 +170,10 @@ async def skip(_, message: Message):
 """leave"""
 @app.on_message(command(['leave', 'l']) & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def leave(_, message: Message):
+async def leave(_, message: Message, lang):
     chat_id = message.chat.id
     set_group(chat_id, is_playing=False, now_playing=None)
     await set_title(message, '')
@@ -180,9 +185,10 @@ async def leave(_, message: Message):
 """queue"""
 @app.on_message(command('queue') & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def queues(_, message: Message):
+async def queues(_, message: Message, lang):
     chat_id = message.chat.id
     queue = get_queue(chat_id)
     if len(queue) > 0:
@@ -193,9 +199,10 @@ async def queues(_, message: Message):
 """shuffle"""
 @app.on_message(command('shuffle') & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def shuffle(_, message: Message):
+async def shuffle(_, message: Message, lang):
     chat_id = message.chat.id
     if len(get_queue(chat_id)) > 0:
         shuffled = shuffle_queue(chat_id)
@@ -208,9 +215,10 @@ async def shuffle(_, message: Message):
 """now_playing"""
 @app.on_message(command(['now', 'np', 'now_playing']) & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def now_playing(_, message: Message):
+async def now_playing(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     if group['is_playing']:
@@ -222,9 +230,10 @@ async def now_playing(_, message: Message):
 """loop"""
 @app.on_message(command('loop') & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def loop(_, message: Message):
+async def loop(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     if group['loop'] == True:
@@ -237,9 +246,10 @@ async def loop(_, message: Message):
 """quiet"""
 @app.on_message(command('quiet') & filters.group)
 @register
+@language
 @blacklist_check
 @handle_error
-async def quiet(_, message: Message):
+async def quiet(_, message: Message, lang):
     chat_id = message.chat.id
     group = get_group(chat_id)
     if group['quiet']:
@@ -252,11 +262,10 @@ async def quiet(_, message: Message):
 """language"""
 @app.on_message(command(['language', 'lang']))
 @register
+@language
 @only_admins
 @handle_error
-async def set_lang(_, message: Message):
-    global lang
-
+async def set_lang(_, message: Message, lang):
     chat_id = message.chat.id
     lng = extract_args(message.text)
     if lng != '':
@@ -266,7 +275,6 @@ async def set_lang(_, message: Message):
         else:
             if lng in langs:
                 set_group(chat_id, lang=lng)
-                lang = load(lng)
                 await message.reply_text(lang['langSet'] % lng)
             else:
                 await message.reply_text(lang['notFound'])
@@ -274,9 +282,10 @@ async def set_lang(_, message: Message):
 """add blacklist"""
 @app.on_message(command(['add_blacklist', 'addbl']) & filters.group)
 @register
+@language
 @only_admins
 @handle_error
-async def add_blacklist(_, message: Message):
+async def add_blacklist(_, message: Message, lang):
     chat_id = message.chat.id
     args = extract_args(message.text)
     uid = int(args) if args.isnumeric() else message.reply_to_message.from_user.id
@@ -287,9 +296,10 @@ async def add_blacklist(_, message: Message):
 """remove blacklist"""
 @app.on_message(command(['remove_blacklist', 'rmbl']) & filters.group)
 @register
+@language
 @only_admins
 @handle_error
-async def rm_blacklist(_, message: Message):
+async def rm_blacklist(_, message: Message, lang):
     chat_id = message.chat.id
     args = extract_args(message.text)
     uid = int(args) if args.isnumeric() else message.reply_to_message.from_user.id
@@ -300,17 +310,19 @@ async def rm_blacklist(_, message: Message):
 """get blacklist"""
 @app.on_message(command(['get_blacklist', 'getbl']) & filters.group)
 @register
+@language
 @only_admins
 @handle_error
-async def get_blacklist(_, message: Message):
+async def get_blacklist(_, message: Message, lang):
     chat_id = message.chat.id
     await message.reply_text("\n".join([f'`{str(uid)}`' for uid in get_bl(chat_id)]) or lang['blacklistEmpty'])
 
 """export"""
 @app.on_message(command('export') & filters.group)
 @register
+@language
 @handle_error
-async def export_queue(_, message: Message):
+async def export_queue(_, message: Message, lang):
     chat_id = message.chat.id
     queue = get_queue(chat_id)
     if len(queue) > 0:
@@ -326,8 +338,9 @@ async def export_queue(_, message: Message):
 """import"""
 @app.on_message(command('import') & filters.group)
 @register
+@language
 @handle_error
-async def import_queue(_, message: Message):
+async def import_queue(_, message: Message, lang):
     if not message.reply_to_message or not message.reply_to_message.document:
         return await message.reply_text(lang['replyToAFile'])
     chat_id = message.chat.id
@@ -381,8 +394,9 @@ async def import_queue(_, message: Message):
 """playlist"""
 @app.on_message(command('playlist') & filters.group)
 @register
+@language
 @handle_error
-async def import_playlist(_, message: Message):
+async def import_playlist(_, message: Message, lang):
     chat_id = message.chat.id
     if message.reply_to_message:
         text = message.reply_to_message.text
@@ -434,8 +448,9 @@ async def import_playlist(_, message: Message):
 
 """on stream end"""
 @tgcalls.on_stream_end()
+@language
 @handle_error
-async def stream_end(_, update: Update):
+async def stream_end(_, update: Update, lang):
     if not isinstance(update, StreamAudioEnded):
         return
     chat_id = update.chat_id

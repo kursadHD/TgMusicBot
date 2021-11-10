@@ -62,3 +62,19 @@ def blacklist_check(func: Callable) -> Callable:
 		else:
 			return await message.reply_text(load(get_group(message.chat.id)['lang'])['blacklisted'])
 	return decorator
+
+def language(func: Callable) -> Callable:
+    async def decorator(client, obj: Union[Message, int, Update], *args):
+        try:
+            if isinstance(obj, int):
+                chat_id = obj
+            elif isinstance(obj, Message):
+                chat_id = obj.chat.id
+            elif isinstance(obj, Update):
+                chat_id = obj.chat_id
+            group_lang = get_group(chat_id)['lang']
+        except:
+            group_lang = 'tr'
+        lang = load(group_lang)
+        return await func(client, obj, lang)
+    return decorator 
