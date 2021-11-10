@@ -81,6 +81,7 @@
 - No duration limit!
 - Unlimited queue!
 - Play different songs in multiple groups. Each group has it's own queue!
+- Multi-language support!
 
 ## Run
 > **Requires:**  
