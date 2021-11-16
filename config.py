@@ -29,5 +29,6 @@ class Config:
         else:
             self.LOG_LEVEL = logging.ERROR
         self.PREFIXES: list = os.environ.get('PREFIX', '!').split()
+        self.DEFAULT_LANG: str = os.environ.get('DEFAULT_LANG', 'tr').lower()
 
 config = Config()
