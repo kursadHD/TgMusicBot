@@ -98,7 +98,7 @@ pip(3) install -r requirements.txt -U
 python(3) main.py
 ```
 ### On Heroku
-[![Deploy To Heroku](https://myoctocat.com/assets/images/base-octocat.svg)](https://heroku.com/deploy?template=https://github.com/kursadHD/TgMusicBot)
+[![Deploy To Heroku](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/kursadHD/TgMusicBot)
 
 ## Config Vars 
 VARIABLE | DESCRIPTION | REQUIRED/OPTIONAL
