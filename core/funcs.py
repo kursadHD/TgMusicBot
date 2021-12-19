@@ -1,13 +1,16 @@
 import re
+from pytgcalls.types.input_stream import AudioPiped, AudioImagePiped
+from pytgcalls.types.input_stream.quality import HighQualityAudio, HighQualityVideo
 from pytube import Playlist
 from youtubesearchpython import VideosSearch
 from pyrogram import filters
 from pyrogram.types import Message
-from typing import Optional, Tuple, AsyncIterator
+from typing import Optional, Union, Tuple, AsyncIterator
 from .song import Song
 from .groups import get_group
 from config import config
 from spotipy import Spotify
+
 from spotipy.oauth2 import SpotifyClientCredentials
 sp = Spotify(client_credentials_manager=SpotifyClientCredentials(config.SPOTIFY_CLIENT_ID, config.SPOTIFY_CLIENT_SECRET))
 
@@ -44,6 +47,22 @@ def check_yt_url(text: str) -> Tuple[bool, Optional[str]]:
         return False, None
 
 command = lambda cmd: filters.command(cmd, config.PREFIXES) & ~filters.edited
+
+def get_stream(song: Song) -> Union[AudioPiped, AudioImagePiped]:
+    if config.THUMB_ON_VC:
+        return AudioImagePiped(
+            song.remote_url,
+            song.thumb,
+            HighQualityAudio(),
+            HighQualityVideo(),
+            song.headers
+        )
+    else:
+        return AudioPiped(
+            song.remote_url,
+            HighQualityAudio(),
+            song.headers
+        )
 
 def extract_args(text: str) -> str:
     if ' ' not in text:

@@ -1,3 +1,4 @@
+import os
 from pyrogram import Client
 from pyrogram.types import Message
 from pytgcalls import PyTgCalls
@@ -8,6 +9,18 @@ from .groups import get_group, get_bl, all_groups, set_default
 from config import config
 from lang import load
 from time import time
+
+LANGS = {
+    lang.replace('.json', ''): load(lang.replace('.json', '')) for lang in os.listdir('lang') if lang.endswith('.json')
+}
+try:
+    LANGS.update(
+        {'default': load(config.DEFAULT_LANG)}
+    )
+except:
+    LANGS.update(
+        {'default': load('tr')}
+    )
 
 
 def register(func: Callable) -> Callable:
@@ -42,14 +55,15 @@ def handle_error(func: Callable) -> Callable:
             config.SUDO.append(me.id)
         
         try:
-            lang = get_group(chat_id)['lang']
+            lang = LANGS[get_group(chat_id)['lang']]
         except:
-            lang = config.DEFAULT_LANG
+            lang = LANGS['default']
         try:
             return await func(client, obj, *args)
         except Exception:
+            __import__('traceback').print_exc()
             error_time = int(time())
-            error_msg = await pyro_client.send_message(chat_id, load(lang)['errorMessage'] % error_time)
+            error_msg = await pyro_client.send_message(chat_id, lang['errorMessage'] % error_time)
             chat = await pyro_client.get_chat(chat_id)
             await pyro_client.send_message(config.SUDO[0], f'Group: {chat.title} {f"(@{chat.username}) " if chat.username else ""}(`{chat_id}`)\nTime: `{error_time}`\n[Go to the message]({error_msg.link})\n\n`{format_exc()}`')
             pass
@@ -61,10 +75,10 @@ def blacklist_check(func: Callable) -> Callable:
             return await func(client, message, *args)
         else:
             try:
-                lang = get_group(message.chat.id)['lang']
+                lang = LANGS[get_group(message.chat.id)['lang']]
             except:
-                lang = config.DEFAULT_LANG
-            return await message.reply_text(load(lang)['blacklisted'])
+                lang = LANGS['default']
+            return await message.reply_text(lang['blacklisted'])
     return decorator
 
 def language(func: Callable) -> Callable:
@@ -76,9 +90,8 @@ def language(func: Callable) -> Callable:
                 chat_id = obj.chat.id
             elif isinstance(obj, Update):
                 chat_id = obj.chat_id
-            group_lang = get_group(chat_id)['lang']
+            lang = LANGS[get_group(chat_id)['lang']]
         except:
-            group_lang = config.DEFAULT_LANG
-        lang = load(group_lang)
+            lang = LANGS['default']
         return await func(client, obj, lang)
     return decorator 

@@ -10,18 +10,15 @@ from pyrogram.types import Message
 from pytgcalls import PyTgCalls, StreamType
 from pytgcalls.types import Update
 from pytgcalls.types.stream import StreamAudioEnded
-from pytgcalls.types.input_stream import AudioImagePiped
-from pytgcalls.types.input_stream.quality import HighQualityAudio, HighQualityVideo
 
 # functions
-from core import (search, command, extract_args,
+from core import (search, command, get_stream, extract_args,
     get_youtube_playlist, get_spotify_playlist,
-    get_group, set_group, set_title,
+    all_groups, get_group, set_group, set_title,
     get_queue, clear_queue, shuffle_queue,
     add_bl, rem_bl, get_bl)
 from core.decorators import register, handle_error, blacklist_check, only_admins, language
 from core.song import Song
-from lang import load
 from config import config
 
 app = Client(config.SESSION, api_id=config.API_ID, api_hash=config.API_HASH, parse_mode='markdown')
@@ -31,7 +28,6 @@ logging.basicConfig(level=config.LOG_LEVEL)
 
 """start"""
 @app.on_message(command(['start', 'help']))
-@register
 @language
 @handle_error
 async def start(_, message: Message, lang):
@@ -62,13 +58,7 @@ async def play(_, message: Message, lang):
         infomsg = await message.reply_text(lang['downloading'])
         await tgcalls.join_group_call(
             chat_id,
-            AudioImagePiped(
-                song.remote_url,
-                song.thumb,
-                HighQualityAudio(),
-                HighQualityVideo(),
-                song.headers
-            ),
+            get_stream(song),
             stream_type=StreamType().pulse_stream
         )
         await set_title(message, song.title)
@@ -99,12 +89,7 @@ async def live(_, message: Message, lang):
         infomsg = await message.reply_text(lang['downloading'])
         await tgcalls.join_group_call(
             chat_id,
-            AudioImagePiped(
-                song.remote_url,
-                song.thumb,
-                HighQualityAudio(),
-                HighQualityVideo()
-            ),
+            get_stream(song),
             stream_type=StreamType().live_stream
         )
         await set_title(message, song.title)
@@ -127,13 +112,7 @@ async def skip(_, message: Message, lang):
     if group['loop']:
         await tgcalls.change_stream(
             chat_id,
-            AudioImagePiped(
-                group['now_playing'].remote_url,
-                group['now_playing'].thumb,
-                HighQualityAudio(),
-                HighQualityVideo(),
-                group['now_playing'].headers
-            )
+            get_stream(group['now_playing'])
         )
     else:
         queue = get_queue(chat_id)
@@ -147,13 +126,7 @@ async def skip(_, message: Message, lang):
                     raise Exception(status)
             await tgcalls.change_stream(
                 chat_id,
-                AudioImagePiped(
-                    next_song.remote_url,
-                    next_song.thumb,
-                    HighQualityAudio(),
-                    HighQualityVideo(),
-                    next_song.headers
-                )
+                get_stream(next_song)
             )
             set_group(chat_id, now_playing=next_song)
             await set_title(message, next_song.title)
@@ -266,6 +239,7 @@ async def quiet(_, message: Message, lang):
 @only_admins
 @handle_error
 async def set_lang(_, message: Message, lang):
+
     chat_id = message.chat.id
     lng = extract_args(message.text)
     if lng != '':
@@ -321,6 +295,7 @@ async def get_blacklist(_, message: Message, lang):
 @app.on_message(command('export') & filters.group)
 @register
 @language
+@blacklist_check
 @handle_error
 async def export_queue(_, message: Message, lang):
     chat_id = message.chat.id
@@ -339,6 +314,7 @@ async def export_queue(_, message: Message, lang):
 @app.on_message(command('import') & filters.group)
 @register
 @language
+@blacklist_check
 @handle_error
 async def import_queue(_, message: Message, lang):
     if not message.reply_to_message or not message.reply_to_message.document:
@@ -376,13 +352,7 @@ async def import_queue(_, message: Message, lang):
             raise Exception(status)
         await tgcalls.join_group_call(
             chat_id,
-            AudioImagePiped(
-                song.remote_url,
-                song.thumb,
-                HighQualityAudio(),
-                HighQualityVideo(),
-                song.headers
-            ),
+            get_stream(song),
             stream_type=StreamType().pulse_stream
         )
         await set_title(message, song.title)
@@ -395,6 +365,7 @@ async def import_queue(_, message: Message, lang):
 @app.on_message(command('playlist') & filters.group)
 @register
 @language
+@blacklist_check
 @handle_error
 async def import_playlist(_, message: Message, lang):
     chat_id = message.chat.id
@@ -427,13 +398,7 @@ async def import_playlist(_, message: Message, lang):
             raise Exception(status)
         await tgcalls.join_group_call(
             chat_id,
-            AudioImagePiped(
-                song.remote_url,
-                song.thumb,
-                HighQualityAudio(),
-                HighQualityVideo(),
-                song.headers
-            ),
+            get_stream(song),
             stream_type=StreamType().pulse_stream
         )
         await set_title(message, song.title)
@@ -458,13 +423,7 @@ async def stream_end(_, update: Update, lang):
     if group['loop']:
         await tgcalls.change_stream(
             chat_id,
-            AudioImagePiped(
-                group['now_playing'].remote_url,
-                group['now_playing'].thumb,
-                HighQualityAudio(),
-                HighQualityVideo(),
-                group['now_playing'].headers
-            )
+            get_stream(group['now_playing'])
         )
     else:
         queue = get_queue(chat_id)
@@ -479,13 +438,7 @@ async def stream_end(_, update: Update, lang):
                     raise Exception(status)
             await tgcalls.change_stream(
                 chat_id,
-                AudioImagePiped(
-                    next_song.remote_url,
-                    next_song.thumb,
-                    HighQualityAudio(),
-                    HighQualityVideo(),
-                    next_song.headers
-                )
+                get_stream(next_song)
             )
             await set_title(chat_id, next_song.title, client=app)
             if not group['quiet']:
@@ -501,24 +454,27 @@ async def stream_end(_, update: Update, lang):
 @tgcalls.on_closed_voice_chat()
 @handle_error
 async def closed(_, chat_id: int):
-    await set_title(chat_id, '', client=app)
-    set_group(chat_id, now_playing=None, is_playing=False)
-    clear_queue(chat_id)
+    if chat_id not in all_groups():
+        await set_title(chat_id, '', client=app)
+        set_group(chat_id, now_playing=None, is_playing=False)
+        clear_queue(chat_id)
 
 """on kicked"""
 @tgcalls.on_kicked()
 @handle_error
 async def kicked(_, chat_id: int):
-    await set_title(chat_id, '', client=app)
-    set_group(chat_id, now_playing=None, is_playing=False)
-    clear_queue(chat_id)
+    if chat_id not in all_groups():
+        await set_title(chat_id, '', client=app)
+        set_group(chat_id, now_playing=None, is_playing=False)
+        clear_queue(chat_id)
 
 """on left"""
 @tgcalls.on_left()
 @handle_error
 async def left(_, chat_id: int):
-    await set_title(chat_id, '', client=app)
-    set_group(chat_id, now_playing=None, is_playing=False)
-    clear_queue(chat_id)
+    if chat_id not in all_groups():
+        await set_title(chat_id, '', client=app)
+        set_group(chat_id, now_playing=None, is_playing=False)
+        clear_queue(chat_id)
 
 tgcalls.run()

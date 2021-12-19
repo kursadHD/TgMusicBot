@@ -1,0 +1,69 @@
+{
+    "name": "TgMusicBot",
+    "description": "TgMusicBot is a telegram userbot for playing songs in telegram voice calls based on Pyrogram and PyTgCalls.",
+    "keywords": [
+        "telegram",
+        "userbot",
+        "telegram-userbot",
+        "pyrogram",
+        "pytgcalls",
+        "tgvcbot"
+    ],
+    "repository": "https://github.com/kursadHD/TgMusicBot",
+    "stack": "container",
+    "env": {
+        "SESSION": {
+            "description": "Pyrogram string session. (run `python(3) session.py`)",
+            "required": true
+        },
+        "API_ID": {
+            "description": "Telegram api id (get from https://my.telegram.org)",
+            "required": true
+        },
+        "API_HASH": {
+            "description": "Telegram api hash (get from https://my.telegram.org)",
+            "required": true
+        },
+        "SUDO": {
+            "description": "Sudo user ids (separate with space if more than one sudo)",
+            "required": false
+        },
+        "SPOTIFY_fy clCLIENT_ID": {
+            "description": "Spotiient id (get from https://developer.spotify.com/dashboard/applications)",
+            "required": false
+        },
+        "SPOTIFY_CLIENT_SECRET": {
+            "description": "Spotify client secret (get from https://developer.spotify.com/dashboard/applications)",
+            "required": false
+        },
+        "LOG_LEVEL": {
+            "description": "Log level (debug, info, error)",
+            "required": false,
+            "value": "error"
+        },
+        "PREFIX": {
+            "description": "Bot prefixes (separate with space)",
+            "required": false,
+            "value": "!"
+        },
+        "DEFAULT_LANG": {
+            "description": "default language for groups",
+            "required": false,
+            "value": "tr"
+        },
+        "THUMB_ON_VC": {
+            "description": "thumbnail on voice chats (true or false)",
+            "required": "false",
+            "value": true
+        }
+
+    },
+    "buildpacks": [
+        {
+            "url": "heroku/python"
+        },
+        {
+            "url": "https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git"
+        }
+    ]
+}

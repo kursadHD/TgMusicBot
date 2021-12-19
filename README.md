@@ -81,9 +81,9 @@
 - No duration limit!
 - Unlimited queue!
 - Play different songs in multiple groups. Each group has it's own queue!
-- Multi-language support!
 
 ## Run
+### On Local
 > **Requires:**  
 > Python3.7+  
 > Node.js15+  
@@ -97,6 +97,8 @@ nano config.env # edit your config file
 pip(3) install -r requirements.txt -U
 python(3) main.py
 ```
+### On Heroku
+[![Deploy To Heroku](https://myoctocat.com/assets/images/base-octocat.svg)](https://heroku.com/deploy?template=https://github.com/kursadHD/TgMusicBot)
 
 ## Config Vars 
 VARIABLE | DESCRIPTION | REQUIRED/OPTIONAL
