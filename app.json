@@ -28,8 +28,8 @@
             "description": "Sudo user ids (separate with space if more than one sudo)",
             "required": false
         },
-        "SPOTIFY_fy clCLIENT_ID": {
-            "description": "Spotiient id (get from https://developer.spotify.com/dashboard/applications)",
+        "SPOTIFY_CLIENT_ID": {
+            "description": "Spotify client id (get from https://developer.spotify.com/dashboard/applications)",
             "required": false
         },
         "SPOTIFY_CLIENT_SECRET": {
