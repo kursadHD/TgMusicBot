@@ -111,6 +111,8 @@ SPOTIFY_CLIENT_ID | Spotify client id (get from https://developer.spotify.com/da
 SPOTIFY_CLIENT_SECRET | Spotify client secret (get from https://developer.spotify.com/dashboard) | Optional
 LOG_LEVEL | Log level | Optional
 PREFIXES | Bot prefixes (separate with space) | Optional
+DEFAULT_LANG | Default language for groups | Optional
+THUMB_ON_VC | Thumbnail on voice chats (true or false) | Optional
 
 ## Bugs 
 If you find a bug, contact me via [Telegram](https://t.me/kursadHD) or create an issue

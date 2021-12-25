@@ -47,14 +47,14 @@
             "value": "!"
         },
         "DEFAULT_LANG": {
-            "description": "default language for groups",
+            "description": "Default language for groups",
             "required": false,
             "value": "tr"
         },
         "THUMB_ON_VC": {
-            "description": "thumbnail on voice chats (true or false)",
-            "required": "false",
-            "value": true
+            "description": "Thumbnail on voice chats (true or false)",
+            "required": false,
+            "value": "true"
         }
 
     },
