@@ -2,9 +2,8 @@ from typing import List, Dict, Any, Union
 from pyrogram.types import Message
 from pyrogram.raw.functions.channels import GetFullChannel
 from pyrogram.raw.functions.phone import EditGroupCallTitle
-import random
+from config import config
 from .queue import Queue
-from .song import Song
 
 GROUPS: Dict[int, Dict[str, Any]] = {}
 
@@ -18,11 +17,14 @@ def set_default(chat_id: int) -> None:
     GROUPS[chat_id]['now_playing'] = None
     GROUPS[chat_id]['loop'] = False
     GROUPS[chat_id]['quiet'] = False
-    GROUPS[chat_id]['lang'] = 'tr'
+    GROUPS[chat_id]['stream_mode'] = config.DEFAULT_STREAM_MODE
+    GROUPS[chat_id]['lang'] = config.DEFAULT_LANG
     GROUPS[chat_id]['blacklist'] = []
     GROUPS[chat_id]['queue'] = Queue()
 
 def get_group(chat_id) -> Dict[str, Any]:
+    if chat_id not in all_groups():
+        set_default(chat_id)
     return GROUPS[chat_id]
 
 def set_group(chat_id: int, **kwargs) -> None:

@@ -13,7 +13,7 @@
     "stack": "container",
     "env": {
         "SESSION": {
-            "description": "Pyrogram string session. (run `python(3) session.py`)",
+            "description": "Pyrogram string session. (run `python(3) session.py` or generate it from https://replit.com/@kursadHD/Pyrogram-String-Session-Generator)",
             "required": true
         },
         "API_ID": {
@@ -37,7 +37,7 @@
             "required": false
         },
         "LOG_LEVEL": {
-            "description": "Log level (debug, info, error)",
+            "description": "Log level (debug / info / error)",
             "required": false,
             "value": "error"
         },
@@ -47,14 +47,14 @@
             "value": "!"
         },
         "DEFAULT_LANG": {
-            "description": "Default language for groups",
+            "description": "Default language for groups (tr / en)",
             "required": false,
             "value": "tr"
         },
-        "THUMB_ON_VC": {
-            "description": "Thumbnail on voice chats (true or false)",
+        "DEFAULT_STREAM_MODE": {
+            "description": "Default stream mode for groups (audio / video)",
             "required": false,
-            "value": "true"
+            "value": "audio"
         }
 
     },

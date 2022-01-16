@@ -1,5 +1,5 @@
-py-tgcalls==0.8.1rc1
-git+https://github.com/pyrogram/pyrogram
+py-tgcalls==0.8.3
+pyrogram
 tgcrypto
 youtube-search-python
 pytube
