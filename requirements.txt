@@ -1,5 +1,5 @@
 py-tgcalls==0.8.3
-pyrogram
+pyrogram==1.4.16
 tgcrypto
 youtube-search-python
 pytube
